@@ -2,13 +2,22 @@
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report, confusion_matrix
 from sklearn.metrics import precision_recall_fscore_support as all_score
 from sklearn import metrics
+from sklearn.preprocessing import binarize
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 def accuracyScoreModel(modelN,test_data,test_labels):
     test_data = test_data.reshape(-1,1)
 
     predictions = modelN.predict(test_data)
 
-    return accuracy_score(test_labels,predictions)
+    accMod = accuracy_score(test_labels,predictions)
+    accNoClassifier = 1 - test_labels.mean() # This is the minimum prediction if the system is completly random
+
+    print("Accuracy that the Model has = ",accMod)
+    print("Accuracy with no prediction = ",accNoClassifier)
+    return accMod
 
 
 def confussionMatr(modelN,test_data,test_labels):
@@ -54,3 +63,49 @@ def VisualizePredTestResults(modelNN,test_data,test_labels,stepN=15,numberLines 
 
         if (i>=numberLines):
             break
+
+
+def binarizationDifferentThreshold(y_pred_prob,threshold):
+    y_pred_prob = y_pred_prob.reshape(-1,1)
+    y_pred_class = binarize(y_pred_prob,threshold)
+
+    return y_pred_class
+
+
+def rocCurveDisplay(test_labels,y_pred_prob):
+    fpr,tpr,thresholds = metrics.roc_curve(test_labels,y_pred_prob)
+    plt.plot(fpr,tpr)
+    plt.xlim([0,1.0])
+    plt.ylim([0,1.0])
+    plt.grid(True)
+
+
+    x = np.linspace(0, 1, num=20)
+
+    plt.plot(x, x);
+    return fpr,tpr,thresholds
+
+def evaluate_threshold(threshold,thresholds,tpr,fpr):
+    print("sensitivity",tpr[thresholds>threshold][-1])
+    print("Specificity",1-fpr[thresholds>threshold][-1])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
